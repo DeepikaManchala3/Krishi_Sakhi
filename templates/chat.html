@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krishi Sakhi AI - Your Farming Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2ecc71;
+            --primary-dark: #27ae60;
+            --secondary-color: #3498db;
+            --light-bg: #f8f9fa;
+            --dark-text: #2c3e50;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e0f7e9 0%, #a5d6a7 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--dark-text);
+        }
+
+        .container {
+            max-width: 1000px;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            font-size: 2.5rem;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .chat-container {
+            background-color: var(--light-bg);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            border-radius: 18px;
+            max-width: 80%;
+            line-height: 1.4;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .user-message {
+            background-color: #e3f2fd;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+            color: #1565c0;
+        }
+
+        .ai-message {
+            background-color: #e8f5e9;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            color: #2e7d32;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .input-container input {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 50px;
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        .input-container input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .icon {
+            font-size: 1.2rem;
+        }
+
+        .speaking-indicator {
+            display: none;
+            color: #e74c3c;
+            font-weight: 600;
+            margin-top: 10px;
+            text-align: center;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        .speaking-indicator.active {
+            display: block;
+        }
+
+        .suggestions {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .suggestion-btn {
+            background-color: #f1f8e9;
+            border: 1px solid #c5e1a5;
+            border-radius: 50px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .suggestion-btn:hover {
+            background-color: #dcedc8;
+            transform: translateY(-2px);
+        }
+
+        .welcome-message {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--primary-dark);
+            font-size: 1.2rem;
+        }
+
+        .voice-status {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 15px;
+            background-color: var(--light-bg);
+            color: #6c757d;
+            font-size: 0.9rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            background-color: #e8f5e9;
+            padding: 10px 15px;
+            border-radius: 18px;
+            border-bottom-left-radius: 5px;
+            max-width: 150px;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #6c757d;
+            margin: 0 2px;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+        
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-top: 8px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+        }
+        
+        .image-preview:hover {
+            opacity: 0.8;
+            transform: scale(1.02);
+        }
+        
+        .language-selector {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+        }
+        
+        .language-selector select {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 5px;
+            padding: 5px 10px;
+        }
+        
+        .language-selector option {
+            color: #333;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .logo {
+                position: static;
+                margin-bottom: 10px;
+            }
+            
+            .language-selector {
+                position: static;
+                margin-top: 10px;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .suggestions {
+                grid-template-columns: 1fr;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-seedling"></i>
+            </div>
+            <div class="language-selector">
+                <select id="languageSelect">
+                    <option value="en">English</option>
+                    <option value="hi">Hindi</option>
+                    <option value="te">Telugu</option>
+                </select>
+            </div>
+            <h1>Krishi Sakhi AI</h1>
+            <p>Your intelligent farming assistant</p>
+        </div>
+        
+        <div class="content">
+            <div class="welcome-message" id="welcomeMessage">
+                <p>Welcome! Ask me about farming, weather, crops, or anything related to agriculture.</p>
+            </div>
+            
+            <div class="chat-container" id="chatContainer">
+                <div class="message ai-message">
+                    <div id="initialMessage">Hello! I'm Krishi Sakhi AI, your farming assistant. How can I help you today?</div>
+                    <div class="message-time">Just now</div>
+                </div>
+            </div>
+            
+            <div class="voice-status" id="voiceStatus">
+                <i class="fas fa-microphone"></i> Click the microphone button to speak
+            </div>
+            
+            <div class="speaking-indicator" id="speakingIndicator">
+                <i class="fas fa-volume-up"></i> Speaking response...
+            </div>
+            
+            <div class="input-container">
+                <input type="text" id="userInput" placeholder="Type your question here...">
+                <button class="btn btn-primary" id="sendBtn">
+                    <i class="fas fa-paper-plane"></i> Send
+                </button>
+                <button class="btn btn-secondary" id="imageBtn">
+                    <i class="fas fa-paperclip"></i>
+                </button>
+            </div>
+            
+            <div class="controls">
+                <button class="btn btn-secondary" id="speakBtn">
+                    <i class="fas fa-microphone"></i> Speak
+                </button>
+                <button class="btn btn-secondary" id="readBtn">
+                    <i class="fas fa-volume-up"></i> Read Response
+                </button>
+                <button class="btn btn-danger" id="clearBtn">
+                    <i class="fas fa-trash"></i> Clear Chat
+                </button>
+            </div>
+            
+            <div class="suggestions">
+                <div class="suggestion-btn" data-question="Tell me about organic farming">Organic Farming</div>
+                <div class="suggestion-btn" data-question="What is the weather forecast for this week?">Weather Forecast</div>
+                <div class="suggestion-btn" data-question="How to prevent crop diseases?">Crop Diseases</div>
+                <div class="suggestion-btn" data-question="Best crops for this season">Seasonal Crops</div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Krishi Sakhi AI &copy; 2023 - Your trusted farming companion</p>
+        </div>
+    </div>
+
+    <!-- Image Upload Modal -->
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uploadImageTitle">Upload Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <button class="btn btn-outline-primary mb-3 w-100" id="cameraBtn">
+                        <i class="fas fa-camera me-2"></i>Take Photo
+                    </button>
+                    <button class="btn btn-outline-success w-100" id="galleryBtn">
+                        <i class="fas fa-image me-2"></i>Choose from Gallery
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Camera Modal -->
+    <div class="modal fade" id="cameraModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="takePhotoTitle">Take Photo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div id="cameraError" class="alert alert-warning d-none"></div>
+                    
+                    <!-- Camera view -->
+                    <div id="cameraView" class="mb-3" style="display: none;">
+                        <video id="cameraPreview" autoplay playsinline 
+                               style="width: 100%; max-height: 400px; background: #000; border-radius: 10px;"></video>
+                        <div class="mt-2">
+                            <small class="text-muted" id="pointCameraText">Point your camera at the plant or crop you want to analyze</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Capture result -->
+                    <div id="captureResult" style="display: none;">
+                        <img id="capturedImage" src="" alt="Captured photo" 
+                             style="max-width: 100%; max-height: 400px; border-radius: 10px;">
+                    </div>
+                    
+                    <!-- Camera instructions -->
+                    <div id="cameraInstructions" class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        <small id="cameraInstructionsText">Allow camera permissions when prompted.</small>
+                    </div>
+                    
+                    <!-- Camera loading -->
+                    <div id="cameraLoading" class="d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading camera...</span>
+                        </div>
+                        <p class="mt-2" id="initializingCameraText">Initializing camera...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" id="captureBtn" style="display: none;">
+                        <i class="fas fa-camera me-2"></i>Capture Photo
+                    </button>
+                    <button class="btn btn-primary" id="retakeBtn" style="display: none;">
+                        <i class="fas fa-redo me-2"></i>Retake
+                    </button>
+                    <button class="btn btn-success" id="uploadCapturedBtn" style="display: none;">
+                        <i class="fas fa-check me-2"></i>Use This Photo
+                    </button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Image Preview Modal -->
+    <div class="modal fade" id="imagePreviewModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Image Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="modalImage" src="" style="max-width: 100%; max-height: 70vh;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Multi-language content
+        const translations = {
+            'en': {
+                'welcome': 'Welcome! Ask me about farming, weather, crops, or anything related to agriculture.',
+                'initialMessage': "Hello! I'm Krishi Sakhi AI, your farming assistant. How can I help you today?",
+                'voiceStatus': 'Click the microphone button to speak',
+                'speaking': 'Speaking response...',
+                'userInputPlaceholder': 'Type your question here...',
+                'send': 'Send',
+                'speak': 'Speak',
+                'stop': 'Stop',
+                'read': 'Read Response',
+                'clear': 'Clear Chat',
+                'uploadImage': 'Upload Image',
+                'takePhoto': 'Take Photo',
+                'chooseFromGallery': 'Choose from Gallery',
+                'pointCamera': 'Point your camera at the plant or crop you want to analyze',
+                'cameraInstructions': 'Allow camera permissions when prompted.',
+                'initializingCamera': 'Initializing camera...',
+                'capturePhoto': 'Capture Photo',
+                'retake': 'Retake',
+                'useThisPhoto': 'Use This Photo',
+                'close': 'Close',
+                'listening': 'Listening... Speak now',
+                'imageUploaded': 'I uploaded an image for analysis',
+                'typing': 'Krishi Sakhi is typing',
+                'hello': 'Hello! How can I assist you with your farming needs today?',
+                'weather': 'Based on your location, the weather forecast for the week is sunny with a chance of rain on Thursday. Perfect for most crops!',
+                'organicFarming': 'Organic farming avoids synthetic pesticides and fertilizers. It focuses on soil health, biodiversity, and ecological balance.',
+                'cropDiseases': 'To prevent crop diseases, practice crop rotation, use disease-resistant varieties, and ensure proper spacing for air circulation.',
+                'bestCrops': 'For this season, I recommend tomatoes, peppers, and leafy greens. They thrive in the current temperature range.',
+                'defaultResponse': 'I understand you\'re asking about farming. As an AI farming assistant, I can help with crop management, weather information, pest control, and more. Could you please provide more specific details?',
+                'imageResponse1': 'Thank you for sharing the image! I can see this appears to be a healthy crop. The leaves look vibrant and green.',
+                'imageResponse2': 'This image shows promising plant growth! The color and texture look good.',
+                'imageResponse3': 'I\'ve analyzed your image. The plant appears to be in good condition.',
+                'imageResponse4': 'Thanks for the photo! I notice healthy growth patterns.'
+            },
+            'hi': {
+                'welcome': 'स्वागत है! मुझसे खेती, मौसम, फसलों या कृषि से संबंधित किसी भी चीज़ के बारे में पूछें।',
+                'initialMessage': 'नमस्ते! मैं कृषि सखी एआई, आपकी खेती सहायक हूं। आज मैं आपकी कैसे मदद कर सकती हूं?',
+                'voiceStatus': 'बोलने के लिए माइक्रोफोन बटन पर क्लिक करें',
+                'speaking': 'प्रतिक्रिया बोल रहा है...',
+                'userInputPlaceholder': 'अपना प्रश्न यहाँ टाइप करें...',
+                'send': 'भेजें',
+                'speak': 'बोलें',
+                'stop': 'रोकें',
+                'read': 'प्रतिक्रिया पढ़ें',
+                'clear': 'चैट साफ करें',
+                'uploadImage': 'छवि अपलोड करें',
+                'takePhoto': 'फोटो लें',
+                'chooseFromGallery': 'गैलरी से चुनें',
+                'pointCamera': 'अपने कैमरे को उस पौधे या फसल की ओर करें जिसका आप विश्लेषण करना चाहते हैं',
+                'cameraInstructions': 'जब संकेत दिया जाए तो कैमरा अनुमतियाँ दें।',
+                'initializingCamera': 'कैमरा आरंभ कर रहा है...',
+                'capturePhoto': 'फोटो कैप्चर करें',
+                'retake': 'फिर से लें',
+                'useThisPhoto': 'इस फोटो का उपयोग करें',
+                'close': 'बंद करें',
+                'listening': 'सुन रहा हूं... अब बोलें',
+                'imageUploaded': 'मैंने विश्लेषण के लिए एक छवि अपलोड की है',
+                'typing': 'कृषि सखी टाइप कर रही है',
+                'hello': 'नमस्ते! आज मैं आपकी खेती संबंधी जरूरतों में कैसे सहायता कर सकती हूं?',
+                'weather': 'आपके स्थान के आधार पर, इस सप्ताह के लिए मौसम का पूर्वानुमान गुरुवार को बारिश की संभावना के साथ धूप वाला है। अधिकांश फसलों के लिए एकदम सही!',
+                'organicFarming': 'जैविक खेती सिंथेटिक कीटनाशकों और उर्वरकों से बचती है। यह मिट्टी के स्वास्थ्य, जैव विविधता और पारिस्थितिक संतुलन पर केंद्रित है।',
+                'cropDiseases': 'फसल रोगों को रोकने के लिए, फसल चक्रण का अभ्यास करें, रोग-प्रतिरोधी किस्मों का उपयोग करें और वायु संचार के लिए उचित रिक्ति सुनिश्चित करें।',
+                'bestCrops': 'इस मौसम के लिए, मैं टमाटर, मिर्च और पत्तेदार सब्जियों की सलाह देती हूं। वे वर्तमान तापमान सीमा में पनपते हैं।',
+                'defaultResponse': 'मैं समझती हूं कि आप खेती के बारे में पूछ रहे हैं। एक एआई खेती सहायक के रूप में, मैं फसल प्रबंधन, मौसम जानकारी, कीट नियंत्रण और बहुत कुछ में मदद कर सकती हूं। क्या आप कृपया अधिक विशिष्ट विवरण प्रदान कर सकते हैं?',
+                'imageResponse1': 'छवि साझा करने के लिए धन्यवाद! मैं देख सकती हूं कि यह एक स्वस्थ फसल प्रतीत होती है। पत्तियां जीवंत और हरी दिख रही हैं।',
+                'imageResponse2': 'यह छवि आशाजनक पौधे की वृद्धि दिखाती है! रंग और बनावट अच्छी लग रही है।',
+                'imageResponse3': 'मैंने आपकी छवि का विश्लेषण किया है। पौधा अच्छी स्थिति में प्रतीत होता है।',
+                'imageResponse4': 'फोटो के लिए धन्यवाद! मैं स्वस्थ विकास पैटर्न देखता हूं।'
+            },
+            'te': {
+                'welcome': 'స్వాగతం! నాతో వ్యవసాయం, వాతావరణం, పంటలు లేదా వ్యవసాయానికి సంబంధించిన ఏదైనా గురించి అడగండి.',
+                'initialMessage': 'నమస్కారం! నేను కృషి సఖి AI, మీ వ్యవసాయ సహాయకురాలు. ఈరోజు నేను మీకు ఎలా సహాయపడగలను?',
+                'voiceStatus': 'మాట్లాడటానికి మైక్రోఫోన్ బటన్ పై క్లిక్ చేయండి',
+                'speaking': 'ప్రతిస్పందన మాట్లాడుతోంది...',
+                'userInputPlaceholder': 'మీ ప్రశ్నను ఇక్కడ టైప్ చేయండి...',
+                'send': 'పంపండి',
+                'speak': 'మాట్లాడండి',
+                'stop': 'నిలుపు',
+                'read': 'ప్రతిస్పందన చదవండి',
+                'clear': 'చాట్ క్లియర్ చేయండి',
+                'uploadImage': 'చిత్రం అప్లోడ్ చేయండి',
+                'takePhoto': 'ఫోటో తీయండి',
+                'chooseFromGallery': 'గ్యాలరీ నుండి ఎంచుకోండి',
+                'pointCamera': 'మీరు విశ్లేషించదలిచిన మొక్క లేదా పంట వైపు మీ కెమెరాను తిప్పండి',
+                'cameraInstructions': 'ప్రాంప్ట్ చేయబడినప్పుడు కెమెరా అనుమతులను అనుమతించండి.',
+                'initializingCamera': 'కెమెరా ప్రారంభించబడుతోంది...',
+                'capturePhoto': 'ఫోటో క్యాప్చర్ చేయండి',
+                'retake': 'మళ్లీ తీయండి',
+                'useThisPhoto': 'ఈ ఫోటోను ఉపయోగించండి',
+                'close': 'మూసివేయి',
+                'listening': 'వింటున్నాను... ఇప్పుడు మాట్లాడండి',
+                'imageUploaded': 'నేను విశ్లేషణ కోసం ఒక చిత్రాన్ని అప్లోడ్ చేసాను',
+                'typing': 'కృషి సఖి టైప్ చేస్తోంది',
+                'hello': 'నమస్కారం! ఈరోజు మీ వ్యవసాయ అవసరాలలో నేను మీకు ఎలా సహాయపడగలను?',
+                'weather': 'మీ స్థానం ఆధారంగా, ఈ వారం వాతావరణ పూర్వానుమానం గురువారం వర్షపు అవకాశంతో సన్నగా ఉంటుంది. చాలా పంటలకు సరైనది!',
+                'organicFarming': 'సేంద్రీయ వ్యవసాయం సింథటిక్ పురుగుమందులు మరియు ఎరువులను నివారిస్తుంది. ఇది నేల ఆరోగ్యం, జీవవైవిధ్యం మరియు పర్యావరణ సమతుల్యతపై దృష్టి పెడుతుంది.',
+                'cropDiseases': 'పంటల రోగాలను నివారించడానికి, పంట భ్రమణం అభ్యసించండి, రోగ-నిరోధక రకాలను ఉపయోగించండి మరియు గాలి ప్రసరణ కోసం సరైన ఖాళీని నిర్ధారించండి.',
+                'bestCrops': 'ఈ సీజన్ కోసం, నేను టమోటాలు, మిరపకాయలు మరియు ఆకు కూరలను సిఫారసు చేస్తున్నాను. అవి ప్రస్తుత ఉష్ణోగ్రత పరిధిలో అభివృద్ధి చెందుతాయి.',
+                'defaultResponse': 'మీరు వ్యవసాయం గురించి అడుగుతున్నారని నేను అర్థం చేసుకున్నాను. ఒక AI వ్యవసాయ సహాయకురాలిగా, పంట నిర్వహణ, వాతావరణ సమాచారం, పీడ నియంత్రణ మరియు మరిన్నింటిలో నేను సహాయపడగలను. దయచేసి మరింత నిర్దిష్ట వివరాలను అందించగలరా?',
+                'imageResponse1': 'చిత్రాన్ని పంచినందుకు ధన్యవాదాలు! ఇది ఆరోగ్యకరమైన పంటగా కనిపిస్తుంది. ఆకులు సజీవంగా మరియు పచ్చగా ఉన్నాయి.',
+                'imageResponse2': 'ఈ చిత్రం ఆశాజనకమైన మొక్కల వృద్ధిని చూపిస్తుంటుంది! రంగు మరియు ఆకృతి బాగుంది.',
+                'imageResponse3': 'నేను మీ చిత్రాన్ని విశ్లేషించాను. మొక్క మంచి స్థితిలో ఉన్నట్టు కనిపిస్తుంది.',
+                'imageResponse4': 'ఫోటోకు ధన్యవాదాలు! నేను ఆరోగ్యకరమైన వృద్ధి నమూనాలను గమనించాను.'
+            }
+        };
+
+        // Global variables
+        let currentLanguage = 'en';
+        let cameraStream = null;
+        let currentCapturedImage = null;
+        let recognition = null;
+        let synth = window.speechSynthesis;
+
+        // DOM Elements
+        const chatContainer = document.getElementById('chatContainer');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const speakBtn = document.getElementById('speakBtn');
+        const readBtn = document.getElementById('readBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const imageBtn = document.getElementById('imageBtn');
+        const speakingIndicator = document.getElementById('speakingIndicator');
+        const voiceStatus = document.getElementById('voiceStatus');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        const initialMessage = document.getElementById('initialMessage');
+        const languageSelect = document.getElementById('languageSelect');
+        const suggestionBtns = document.querySelectorAll('.suggestion-btn');
+
+        // Initialize the app
+        function init() {
+            // Set up event listeners
+            sendBtn.addEventListener('click', sendMessage);
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') sendMessage();
+            });
+            
+            speakBtn.addEventListener('click', toggleSpeechRecognition);
+            readBtn.addEventListener('click', readLastResponse);
+            clearBtn.addEventListener('click', clearChat);
+            imageBtn.addEventListener('click', openImageModal);
+            
+            // Suggestion buttons
+            suggestionBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    userInput.value = this.getAttribute('data-question');
+                    sendMessage();
+                });
+            });
+            
+            // Language selector
+            languageSelect.addEventListener('change', function() {
+                currentLanguage = this.value;
+                updateLanguage();
+            });
+            
+            // Initialize speech recognition if available
+            initSpeechRecognition();
+            
+            // Update UI with current language
+            updateLanguage();
+        }
+
+        // Update UI with current language
+        function updateLanguage() {
+            const t = translations[currentLanguage];
+            
+            // Update text content
+            welcomeMessage.textContent = t.welcome;
+            initialMessage.textContent = t.initialMessage;
+            voiceStatus.innerHTML = `<i class="fas fa-microphone"></i> ${t.voiceStatus}`;
+            userInput.placeholder = t.userInputPlaceholder;
+            sendBtn.innerHTML = `<i class="fas fa-paper-plane"></i> ${t.send}`;
+            readBtn.innerHTML = `<i class="fas fa-volume-up"></i> ${t.read}`;
+            clearBtn.innerHTML = `<i class="fas fa-trash"></i> ${t.clear}`;
+            speakingIndicator.innerHTML = `<i class="fas fa-volume-up"></i> ${t.speaking}`;
+            
+            // Update modal texts
+            document.getElementById('uploadImageTitle').textContent = t.uploadImage;
+            document.getElementById('takePhotoTitle').textContent = t.takePhoto;
+            document.getElementById('cameraBtn').innerHTML = `<i class="fas fa-camera me-2"></i>${t.takePhoto}`;
+            document.getElementById('galleryBtn').innerHTML = `<i class="fas fa-image me-2"></i>${t.chooseFromGallery}`;
+            document.getElementById('pointCameraText').textContent = t.pointCamera;
+            document.getElementById('cameraInstructionsText').textContent = t.cameraInstructions;
+            document.getElementById('initializingCameraText').textContent = t.initializingCamera;
+            document.getElementById('captureBtn').innerHTML = `<i class="fas fa-camera me-2"></i>${t.capturePhoto}`;
+            document.getElementById('retakeBtn').innerHTML = `<i class="fas fa-redo me-2"></i>${t.retake}`;
+            document.getElementById('uploadCapturedBtn').innerHTML = `<i class="fas fa-check me-2"></i>${t.useThisPhoto}`;
+            
+            // Update suggestion buttons based on language
+            const suggestions = document.querySelectorAll('.suggestion-btn');
+            if (currentLanguage === 'hi') {
+                suggestions[0].setAttribute('data-question', 'जैविक खेती के बारे में बताएं');
+                suggestions[1].setAttribute('data-question', 'इस सप्ताह के लिए मौसम का पूर्वानुमान क्या है?');
+                suggestions[2].setAttribute('data-question', 'फसल रोगों को कैसे रोकें?');
+                suggestions[3].setAttribute('data-question', 'इस मौसम के लिए सबसे अच्छी फसलें');
+                
+                suggestions[0].textContent = 'जैविक खेती';
+                suggestions[1].textContent = 'मौसम पूर्वानुमान';
+                suggestions[2].textContent = 'फसल रोग';
+                suggestions[3].textContent = 'मौसमी फसलें';
+            } else if (currentLanguage === 'te') {
+                suggestions[0].setAttribute('data-question', 'సేంద్రీయ వ్యవసాయం గురించి చెప్పండి');
+                suggestions[1].setAttribute('data-question', 'ఈ వారం వాతావరణ పూర్వానుమానం ఏమిటి?');
+                suggestions[2].setAttribute('data-question', 'పంటల రోగాలను ఎలా నివారించాలి?');
+                suggestions[3].setAttribute('data-question', 'ఈ సీజన్ కోసం ఉత్తమ పంటలు');
+                
+                suggestions[0].textContent = 'సేంద్రీయ వ్యవసాయం';
+                suggestions[1].textContent = 'వాతావరణ పూర్వానుమానం';
+                suggestions[2].textContent = 'పంటల రోగాలు';
+                suggestions[3].textContent = 'ఋతుకాలిక పంటలు';
+            } else {
+                suggestions[0].setAttribute('data-question', 'Tell me about organic farming');
+                suggestions[1].setAttribute('data-question', 'What is the weather forecast for this week?');
+                suggestions[2].setAttribute('data-question', 'How to prevent crop diseases?');
+                suggestions[3].setAttribute('data-question', 'Best crops for this season');
+                
+                suggestions[0].textContent = 'Organic Farming';
+                suggestions[1].textContent = 'Weather Forecast';
+                suggestions[2].textContent = 'Crop Diseases';
+                suggestions[3].textContent = 'Seasonal Crops';
+            }
+        }
+
+        // Initialize speech recognition
+        function initSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            
+            if (SpeechRecognition) {
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                
+                // Set language based on current selection
+                updateRecognitionLanguage();
+                
+                recognition.onstart = function() {
+                    voiceStatus.innerHTML = `<i class="fas fa-microphone-slash"></i> ${translations[currentLanguage].listening}`;
+                    speakBtn.innerHTML = `<i class="fas fa-microphone-slash"></i> ${translations[currentLanguage].stop}`;
+                };
+
+                recognition.onend = function() {
+                    voiceStatus.innerHTML = `<i class="fas fa-microphone"></i> ${translations[currentLanguage].voiceStatus}`;
+                    speakBtn.innerHTML = `<i class="fas fa-microphone"></i> ${translations[currentLanguage].speak}`;
+                };
+
+                recognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript;
+                    userInput.value = transcript;
+                    sendMessage();
+                };
+
+                recognition.onerror = function(event) {
+                    console.error('Speech recognition error', event.error);
+                    voiceStatus.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Error: ${event.error}`;
+                    speakBtn.innerHTML = `<i class="fas fa-microphone"></i> ${translations[currentLanguage].speak}`;
+                };
+            } else {
+                voiceStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Speech recognition not supported in this browser';
+                speakBtn.disabled = true;
+            }
+            
+            // Check if speech synthesis is supported
+            if (!synth) {
+                readBtn.disabled = true;
+                readBtn.innerHTML = '<i class="fas fa-volume-mute"></i> Text-to-Speech Not Supported';
+            }
+        }
+
+        // Update recognition language based on current selection
+        function updateRecognitionLanguage() {
+            if (!recognition) return;
+            
+            const langMap = {
+                'en': 'en-US',
+                'hi': 'hi-IN',
+                'te': 'te-IN'
+            };
+            
+            recognition.lang = langMap[currentLanguage] || 'en-US';
+        }
+
+        // Toggle speech recognition
+        function toggleSpeechRecognition() {
+            if (!recognition) return;
+            
+            if (speakBtn.innerHTML.includes(translations[currentLanguage].stop)) {
+                recognition.stop();
+            } else {
+                updateRecognitionLanguage();
+                recognition.start();
+            }
+        }
+
+        // Add message to chat
+        function addMessage(text, isUser, imageData = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(isUser ? 'user-message' : 'ai-message');
+            
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            let content = `<div>${text}</div>`;
+            
+            if (imageData) {
+                content += `
+                    <div class="mt-2">
+                        <img src="${imageData}" alt="Uploaded image" class="image-preview" 
+                             onclick="openImagePreview('${imageData}')">
+                    </div>
+                `;
+            }
+            
+            content += `<div class="message-time">${time}</div>`;
+            
+            messageDiv.innerHTML = content;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Show typing indicator
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.classList.add('message', 'ai-message');
+            typingDiv.id = 'typing-indicator';
+            
+            typingDiv.innerHTML = `
+                <div class="typing-indicator">
+                    <span>${translations[currentLanguage].typing}</span>
+                    <div class="ms-2">
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                    </div>
+                </div>
+            `;
+            
+            chatContainer.appendChild(typingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Remove typing indicator
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        // Get AI response
+        function getAIResponse(userMessage) {
+            const t = translations[currentLanguage];
+            const lowerMessage = userMessage.toLowerCase();
+            
+            if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || 
+                lowerMessage.includes('namaste') || lowerMessage.includes('नमस्ते') || 
+                lowerMessage.includes('హలో') || lowerMessage.includes('నమస్కారం')) {
+                return t.hello;
+            } else if (lowerMessage.includes('weather') || lowerMessage.includes('मौसम') || 
+                       lowerMessage.includes('వాతావరణ')) {
+                return t.weather;
+            } else if (lowerMessage.includes('organic') || lowerMessage.includes('जैविक') || 
+                       lowerMessage.includes('సేంద్రీయ')) {
+                return t.organicFarming;
+            } else if (lowerMessage.includes('disease') || lowerMessage.includes('रोग') || 
+                       lowerMessage.includes('బీమారी') || lowerMessage.includes('రోగ')) {
+                return t.cropDiseases;
+            } else if ((lowerMessage.includes('crop') && lowerMessage.includes('best')) || 
+                       lowerMessage.includes('अच्छी फसल') || lowerMessage.includes('ఉత్తమ పంట')) {
+                return t.bestCrops;
+            } else {
+                return t.defaultResponse;
+            }
+        }
+
+        // Send message function
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (message === '') return;
+            
+            addMessage(message, true);
+            userInput.value = '';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Simulate AI thinking
+            setTimeout(() => {
+                removeTypingIndicator();
+                const response = getAIResponse(message);
+                addMessage(response, false);
+                
+                // Auto-read the response if it's not too long
+                if (response.length < 150) {
+                    speakText(response);
+                }
+            }, 1500);
+        }
+
+        // Speak text using text-to-speech
+        function speakText(text) {
+            if (!synth) {
+                alert('Text-to-speech is not supported in your browser');
+                return;
+            }
+            
+            // Stop any ongoing speech
+            synth.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            
+            // Set voice based on language
+            const voices = synth.getVoices();
+            const langVoices = voices.filter(voice => voice.lang.startsWith(currentLanguage));
+            if (langVoices.length > 0) {
+                utterance.voice = langVoices[0];
+            }
+            
+            utterance.rate = 0.9;
+            utterance.pitch = 1;
+            utterance.volume = 0.8;
+            
+            utterance.onstart = function() {
+                speakingIndicator.classList.add('active');
+            };
+            
+            utterance.onend = function() {
+                speakingIndicator.classList.remove('active');
+            };
+            
+            synth.speak(utterance);
+        }
+
+        // Read the last response
+        function readLastResponse() {
+            const messages = chatContainer.querySelectorAll('.ai-message');
+            if (messages.length > 0) {
+                const lastResponse = messages[messages.length - 1].querySelector('div').textContent;
+                speakText(lastResponse);
+            } else {
+                speakText(translations[currentLanguage].initialMessage);
+            }
+        }
+
+        // Clear chat
+        function clearChat() {
+            chatContainer.innerHTML = '';
+            addMessage(translations[currentLanguage].initialMessage, false);
+            if (synth) {
+                synth.cancel();
+                speakingIndicator.classList.remove('active');
+            }
+        }
+
+        // Image modal functions
+        function openImageModal() {
+            const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+            modal.show();
+        }
+
+        // Set up image modal buttons
+        document.getElementById('cameraBtn').addEventListener('click', function() {
+            bootstrap.Modal.getInstance(document.getElementById('imageModal')).hide();
+            openCameraModal();
+        });
+
+        document.getElementById('galleryBtn').addEventListener('click', function() {
+            bootstrap.Modal.getInstance(document.getElementById('imageModal')).hide();
+            // Create a file input element
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.style.display = 'none';
+            
+            fileInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                if (!file.type.startsWith('image/')) {
+                    alert('Please select a valid image file (JPEG, PNG, etc.)');
+                    return;
+                }
+                
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('Please select an image smaller than 10MB');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    handleImageUpload(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            document.body.appendChild(fileInput);
+            fileInput.click();
+            document.body.removeChild(fileInput);
+        });
+
+        // Camera modal functions
+        function openCameraModal() {
+            const modal = new bootstrap.Modal(document.getElementById('cameraModal'));
+            modal.show();
+            resetCameraUI();
+            initializeCamera();
+        }
+
+        function resetCameraUI() {
+            document.getElementById('cameraView').style.display = 'none';
+            document.getElementById('captureResult').style.display = 'none';
+            document.getElementById('cameraError').classList.add('d-none');
+            document.getElementById('captureBtn').style.display = 'none';
+            document.getElementById('retakeBtn').style.display = 'none';
+            document.getElementById('uploadCapturedBtn').style.display = 'none';
+            document.getElementById('cameraInstructions').classList.remove('d-none');
+            document.getElementById('cameraLoading').classList.remove('d-none');
+        }
+
+        function initializeCamera() {
+            stopCamera();
+            
+            const constraints = {
+                video: {
+                    facingMode: 'environment',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                }
+            };
+            
+            navigator.mediaDevices.getUserMedia(constraints)
+            .then(function(stream) {
+                document.getElementById('cameraLoading').classList.add('d-none');
+                
+                const video = document.getElementById('cameraPreview');
+                video.srcObject = stream;
+                cameraStream = stream;
+                
+                document.getElementById('cameraView').style.display = 'block';
+                document.getElementById('captureBtn').style.display = 'inline-block';
+                document.getElementById('cameraInstructions').classList.add('d-none');
+                
+                video.play().catch(function(error) {
+                    console.error('Error playing video:', error);
+                    showCameraError('Error starting camera. Please try again.');
+                });
+                
+            }).catch(function(error) {
+                console.error('Camera error:', error);
+                document.getElementById('cameraLoading').classList.add('d-none');
+                
+                let errorMessage = 'Could not access camera. ';
+                switch(error.name) {
+                    case 'NotAllowedError':
+                        errorMessage += 'Please allow camera permissions and refresh the page.';
+                        break;
+                    case 'NotFoundError':
+                        errorMessage += 'No camera found on your device.';
+                        break;
+                    case 'NotSupportedError':
+                        errorMessage += 'Camera not supported in your browser.';
+                        break;
+                    default:
+                        errorMessage += 'Please try again or use gallery upload.';
+                }
+                
+                showCameraError(errorMessage);
+            });
+        }
+
+        function showCameraError(message) {
+            const errorDiv = document.getElementById('cameraError');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('d-none');
+            document.getElementById('cameraInstructions').classList.add('d-none');
+        }
+
+        function capturePhoto() {
+            if (!cameraStream) {
+                showCameraError('Camera not available. Please try again.');
+                return;
+            }
+            
+            const video = document.getElementById('cameraPreview');
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            currentCapturedImage = canvas.toDataURL('image/jpeg', 0.8);
+            
+            document.getElementById('capturedImage').src = currentCapturedImage;
+            document.getElementById('cameraView').style.display = 'none';
+            document.getElementById('captureResult').style.display = 'block';
+            document.getElementById('captureBtn').style.display = 'none';
+            document.getElementById('retakeBtn').style.display = 'inline-block';
+            document.getElementById('uploadCapturedBtn').style.display = 'inline-block';
+            
+            stopCamera();
+        }
+
+        function retakePhoto() {
+            document.getElementById('captureResult').style.display = 'none';
+            document.getElementById('cameraView').style.display = 'block';
+            document.getElementById('retakeBtn').style.display = 'none';
+            document.getElementById('uploadCapturedBtn').style.display = 'none';
+            document.getElementById('captureBtn').style.display = 'inline-block';
+            
+            initializeCamera();
+        }
+
+        function uploadCapturedPhoto() {
+            if (!currentCapturedImage) {
+                alert('No photo captured. Please take a photo first.');
+                return;
+            }
+            
+            const cameraModal = bootstrap.Modal.getInstance(document.getElementById('cameraModal'));
+            if (cameraModal) cameraModal.hide();
+            
+            handleImageUpload(currentCapturedImage);
+        }
+
+        function stopCamera() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => {
+                    track.stop();
+                });
+                cameraStream = null;
+            }
+        }
+
+        // Handle image upload
+        function handleImageUpload(imageData) {
+            addMessage(translations[currentLanguage].imageUploaded, true, imageData);
+            
+            showTypingIndicator();
+            
+            setTimeout(() => {
+                removeTypingIndicator();
+                
+                const t = translations[currentLanguage];
+                const imageResponses = [
+                    t.imageResponse1,
+                    t.imageResponse2,
+                    t.imageResponse3,
+                    t.imageResponse4
+                ];
+                
+                const randomResponse = imageResponses[Math.floor(Math.random() * imageResponses.length)];
+                addMessage(randomResponse, 'bot', imageData);
+                
+            }, 3000);
+        }
+
+        // Open image preview
+        function openImagePreview(imageData) {
+            document.getElementById('modalImage').src = imageData;
+            const modal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
+            modal.show();
+        }
+
+        // Set up camera modal buttons
+        document.getElementById('captureBtn').addEventListener('click', capturePhoto);
+        document.getElementById('retakeBtn').addEventListener('click', retakePhoto);
+        document.getElementById('uploadCapturedBtn').addEventListener('click', uploadCapturedPhoto);
+
+        // Clean up when camera modal is closed
+        document.getElementById('cameraModal').addEventListener('hidden.bs.modal', function() {
+            stopCamera();
+        });
+
+        // Initialize the app when the page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
